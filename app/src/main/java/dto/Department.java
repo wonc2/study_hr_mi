@@ -2,13 +2,13 @@ package dto;
 
 
 public class Department {
-    private String name;
+    private String Name;
 
     public Department(String name) {
-        this.name = name;
+        this.Name = name;
     }
 
     public String getName() {
-        return name;
+        return Name;
     }
 }
