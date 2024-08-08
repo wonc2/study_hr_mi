@@ -4,7 +4,7 @@ import java.sql.*;
 import java.util.HashMap;
 
 public class JavaWithMysql {
-    static final String DB_URL = "jdbc:mysql://localhost/java_mysql";   // container name // localhost - 나중에 ip로 변경
+    static final String DB_URL = "jdbc:mysql://192.168.0.85/java_mysql";   // container name // localhost - 나중에 ip로 변경
     static final String USER = "root";
     static final String PASS = "cocolabhub";
 
