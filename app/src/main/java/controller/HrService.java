@@ -1,10 +1,16 @@
 package controller;
 
+import dao.AttendanceDao;
+import dto.TimeAttendance;
+import org.checkerframework.checker.units.qual.A;
+
 import java.util.Scanner;
 
 public class HrService {
+    private AttendanceDao attendanceDao;
 
-    public HrService() {
+    public HrService(AttendanceDao attendanceDao) {
+        this.attendanceDao = attendanceDao;
     }
 
     public void runHrService() {
@@ -18,7 +24,7 @@ public class HrService {
                     choice = displayAttendance(sc);
                     if (choice == 0) break;
                     else if (choice == 2) {
-                        displayAttendanceUpdate(sc);
+                        displayAttendanceUpdate();
                     } else if (choice == 3) {
                         displayAttendanceDelete(sc);
                     }
@@ -51,15 +57,24 @@ public class HrService {
 //
 //    }
 
-    public void displayAttendanceUpdate(Scanner sc) {
+    public void displayAttendanceUpdate() {
+        Scanner scanner = new Scanner(System.in);
         System.out.println("\n==== 근태 수정 ====\n");
         // 직원 ID 입력 ->
+        System.out.print("직원 ID를 입력하세요: ");
+        String employeeId = scanner.nextLine();
+
         // 기존 날짜 출력 -> 수정할 날짜 입력
+        System.out.print("수정할 날짜를 입력하세요 (YYYY-MM-DD): ");
+        String workday = scanner.nextLine();
+
         // 기존 근무 상태 출력 -> 수정할 근무 상태 입력
-        System.out.println("직원 ID 입력하세여 : ");
-        String id = sc.nextLine();
-        String date;
-        String status;
+        System.out.print("수정할 근무 상태를 입력하세요. (출근/결근/휴가): ");
+        String status = scanner.nextLine();
+
+        TimeAttendance attendance = new TimeAttendance(workday, status);
+        attendanceDao.updateAttendance(attendance, employeeId);
+        System.out.println("업데이트 완료");
     }
 
     public void displayAttendanceDelete(Scanner sc) {
