@@ -119,6 +119,7 @@ public class AttendanceDao extends JDBCConnectionPool {
         return employeeList;
     }
 
+    // 근태 번호 최댓값 가져옴 - 입력시 +1 해서 PK로 사용
     public String getTaPk() {
         String taPk = "";
         String sql = "SELECT TA_PK FROM TimeAttendance ORDER BY length(TA_PK) desc ,TA_PK desc limit 1 ";
@@ -136,7 +137,7 @@ public class AttendanceDao extends JDBCConnectionPool {
         return taPk;
     }
 
-    // 근태 입력 작동 안함 참조키 ? 에러
+    // 근태 입력
     public void insertAttendance(TimeAttendance attendance, String empPk) {
         String sql = "INSERT INTO TimeAttendance (TA_PK, Emp_FK, Dep_FK, Workday, Status) VALUES (?, ?, ?, ?, ?) ";
         try (Connection conn = getConnection();
