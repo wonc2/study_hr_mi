@@ -11,10 +11,10 @@ public class JDBCConnectionPool {
     private String user;
     private String password;
 
-    public JDBCConnectionPool(String url, String user, String password) {
-        this.url = url;
-        this.user = user;
-        this.password = password;
+    public JDBCConnectionPool() {
+        this.url = "jdbc:mysql://192.168.0.85/java_mysql";
+        this.user = "root";
+        this.password = "cocolabhub";
     }
 
     public Connection getConnection() throws SQLException {

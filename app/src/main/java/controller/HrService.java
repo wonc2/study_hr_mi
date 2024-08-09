@@ -4,80 +4,90 @@ import dao.AttendanceDao;
 import dto.TimeAttendance;
 import org.checkerframework.checker.units.qual.A;
 
+import java.util.List;
 import java.util.Scanner;
 
 public class HrService {
     private AttendanceDao attendanceDao;
+    HrCategory hrCategory;
+    Scanner sc;
 
     public HrService(AttendanceDao attendanceDao) {
+        hrCategory = new HrCategory();
+        sc = new Scanner(System.in);
         this.attendanceDao = attendanceDao;
     }
 
+
+
     public void runHrService() {
-        Scanner sc = new Scanner(System.in);
 
         while (true) {
-            int choice = displayMain(sc);
+            int choice = displayMain();
             if (choice == 0) break;
             else if (choice == 3) {
                 while (true) {
-                    choice = displayAttendance(sc);
+                    choice = displayAttendance();
                     if (choice == 0) break;
                     else if (choice == 2) {
                         displayAttendanceUpdate();
                     } else if (choice == 3) {
-                        displayAttendanceDelete(sc);
+                        displayAttendanceDelete();
+                    } else if (choice == 5) {
+                        displayAttendanceDepartmentMonthly();
                     }
                 }
             }
         }
-        // Map<"사전이름 ? (Main, Attendance 등)", List<Integer, <그안의 옵션 목록>>
-
     }
 
-    public int displayMain(Scanner sc) {
-        System.out.println("\n==== 인적 자원 관리 시스템 ====\n");
-        System.out.println("1. 조직/직무 관리\n" + "2. 인사행정\n" + "3. 근태 관리 *\n" + "4. 급여/정산\n" + "5. 사회보험\n" +
-                "6. 평가 관리\n" + "7. 연말정산\n" + "8. 승진 관리\n" + "9. 핵심 인재 관리\n" + "10. 월별 종합 현황 보기\n" + "0. 종료 *\n");
-
-        System.out.print("선택하세요 : ");
+    // 공통으로 사용하는 카테고리 출력 로직
+    public int displayMenu(String title, List<String> categoryList, String exitOption) {
+        StringBuilder stringBuilder = new StringBuilder("\n==== " + title + " ====\n");
+        for (int i = 0; i < categoryList.size(); i++) {
+            stringBuilder.append((i + 1)).append(". ").append(categoryList.get(i)).append("\n");
+        }
+        stringBuilder.append("0. ").append(exitOption).append("\n").append("선택하세요 : ");
+        System.out.print(stringBuilder);
         return sc.nextInt();
     }
 
-    public int displayAttendance(Scanner sc) {
-        System.out.println("\n==== 근태 관리 ====\n");
-        System.out.println("1. 근태 입력 (option)\n" + "2. 근태 수정 *\n" + "3. 근태 삭제 *\n" +
-                "4. 직원별 월별 근태 현황 보기 (option)\n" + "5. 부서별 월별 근태 현황 보기 *\n" + "0. 메인 메뉴로 돌아가기 *\n");
-
-        System.out.print("선택하세요 : ");
-        return sc.nextInt();
+    // 메인 카테고리 출력 메서드
+    public int displayMain() {
+        return displayMenu("인적 자원 관리 시스템", hrCategory.getMainCategory(), "종료");
     }
 
-//    public String displayAttendance(){
-//
-//    }
+    // 근태 관리 카테고리 출력 메서드
+    public int displayAttendance() {
+        return displayMenu("근태 관리", hrCategory.getAttendanceCategory(), "메인 메뉴로 돌아가기 *");
+    }
+
 
     public void displayAttendanceUpdate() {
-        Scanner scanner = new Scanner(System.in);
-        System.out.println("\n==== 근태 수정 ====\n");
+        sc.nextLine(); // 에러 때문에 추가했습니다
         // 직원 ID 입력 ->
-        System.out.print("직원 ID를 입력하세요: ");
-        String employeeId = scanner.nextLine();
-
         // 기존 날짜 출력 -> 수정할 날짜 입력
-        System.out.print("수정할 날짜를 입력하세요 (YYYY-MM-DD): ");
-        String workday = scanner.nextLine();
-
         // 기존 근무 상태 출력 -> 수정할 근무 상태 입력
-        System.out.print("수정할 근무 상태를 입력하세요. (출근/결근/휴가): ");
-        String status = scanner.nextLine();
+        // 직원 ID 입력 ->
+        System.out.println("\n==== 근태 수정 ====\n");
+        attendanceDao.readEmployees();
+        System.out.print("직원 ID 입력하세여 : ");
+        String id = sc.nextLine();
+        if (id.equals("0")) return;
+        attendanceDao.readEmployeeAttendance(id);
+        System.out.print(" - 수정할 날짜의 근태 코드를 입력하세요: ");
+        String workday = sc.nextLine();
+        if (workday.equals("0")) return;
+        System.out.print("수정할 근무 상태를 입력하세요: ");
+        String status = sc.nextLine();
+        if (status.equals("0")) return;
 
-        TimeAttendance attendance = new TimeAttendance(workday, status);
-        attendanceDao.updateAttendance(attendance, employeeId);
+        TimeAttendance attendance = new TimeAttendance(id, workday, status);
+        attendanceDao.updateAttendance(attendance);
         System.out.println("업데이트 완료");
     }
 
-    public void displayAttendanceDelete(Scanner sc) {
+    public void displayAttendanceDelete() {
         System.out.println("\n==== 근태 삭제 ====\n");
         // 직원 ID 입력 ->
         // 기존 날짜 출력 -> 삭제할 날짜 입력
@@ -88,7 +98,7 @@ public class HrService {
         // true -> DB 에서 해당 근태 삭제
     }
 
-    public int displayAttendanceDepartmentMonthly(Scanner sc) {
+    public int displayAttendanceDepartmentMonthly() {
         System.out.println("\n==== 근태 관리 ====\n");
         // 리스트로 쫙
         // 직원 아이디 이름:
