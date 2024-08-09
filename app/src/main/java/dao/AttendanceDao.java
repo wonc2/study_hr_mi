@@ -93,8 +93,8 @@ public class AttendanceDao extends JDBCConnectionPool {
                 "COUNT(CASE WHEN t.Status = '결근' THEN 1 END) AS 'absenceDays', " +
                 "COUNT(CASE WHEN t.Status = '휴가' THEN 1 END) AS 'vacationDays' " +
                 "FROM Employees e " +
-                "JOIN Department d ON e.dep_FK = d.dep_PK " +
                 "JOIN (select * from TimeAttendance where workday like ?) t ON e.Emp_PK = t.Emp_FK " +
+                "JOIN Department d ON e.dep_FK = d.dep_PK " +
                 "GROUP BY e.Emp_PK, e.Name, d.Name";
 
         try (Connection conn = getConnection();
@@ -106,7 +106,7 @@ public class AttendanceDao extends JDBCConnectionPool {
                     employeeData.put("직원 ID", rs.getString("Emp_PK"));
                     employeeData.put("이름", rs.getString("e.Name"));
                     employeeData.put("부서", rs.getString("d.Name"));
-                    employeeData.put("출근율", rs.getString("attendanceRate"));
+                    employeeData.put("출근율", rs.getString("attendanceRate") + "%");
                     employeeData.put("총 출근일", rs.getString("attendDays"));
                     employeeData.put("총 결근일", rs.getString("absenceDays"));
                     employeeData.put("총 휴가일", rs.getString("vacationDays"));
