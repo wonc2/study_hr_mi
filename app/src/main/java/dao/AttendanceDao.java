@@ -4,10 +4,7 @@ import connect.JDBCConnectionPool;
 import dto.TimeAttendance;
 
 import java.sql.*;
-import java.util.ArrayList;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 public class AttendanceDao extends JDBCConnectionPool {
     // 근태 수정
@@ -43,17 +40,13 @@ public class AttendanceDao extends JDBCConnectionPool {
     // 직원 명단 출력
     public void readEmployees() {
         String sql = "SELECT * FROM Employees e JOIN Department d ON e.dep_FK = d.dep_PK";
-
         try (Connection conn = getConnection();
              Statement stmt = conn.createStatement();
              ResultSet rs = stmt.executeQuery(sql)) {
-
-
-            while (rs.next()){
+            while (rs.next()) {
                 String emppk = rs.getString("emp_PK");
-                String dname= rs.getString("d.Name");
+                String dname = rs.getString("d.Name");
                 String name = rs.getString("Name");
-
                 System.out.println("[사원 번호 : " + emppk + "] [이름 :  " + name + "] [부서명 : " + dname + "]");
             }
         } catch (SQLException se) {
@@ -67,23 +60,17 @@ public class AttendanceDao extends JDBCConnectionPool {
                 "INNER JOIN Employees e ON t.Emp_FK = e.Emp_PK " +
                 "WHERE t.Emp_FK = ? " +
                 "ORDER BY t.Workday, t.Status ASC";
-
         try (Connection conn = getConnection();
              PreparedStatement pstmt = conn.prepareStatement(sql)) {
-
             pstmt.setString(1, id);
-
             try (ResultSet rs = pstmt.executeQuery()) {
-
                 // 결과가 없으면 처리하지 않고 종료
                 if (!rs.next()) {
                     System.out.println("No records found.");
                     return;
                 }
-
                 String name = rs.getString("Name");
                 System.out.println("\n" + name + "의 2024년 08월 근태 기록");
-
                 do {
                     String taPk = rs.getString("TA_PK");
                     String workday = rs.getString("Workday");
@@ -107,35 +94,27 @@ public class AttendanceDao extends JDBCConnectionPool {
                 "COUNT(CASE WHEN t.Status = '휴가' THEN 1 END) AS 'vacationDays' " +
                 "FROM Employees e " +
                 "JOIN Department d ON e.dep_FK = d.dep_PK " +
-                "JOIN (select * from TimeAttendance where workday like '%2024-08%') t ON e.Emp_PK = t.Emp_FK " +
+                "JOIN (select * from TimeAttendance where workday like ?) t ON e.Emp_PK = t.Emp_FK " +
                 "GROUP BY e.Emp_PK, e.Name, d.Name";
 
         try (Connection conn = getConnection();
-             Statement stmt = conn.createStatement();
-             ResultSet rs = stmt.executeQuery(sql)) {
-
-
-            while (rs.next()){
-                String empPk = rs.getString("Emp_PK");
-                String name = rs.getString("e.Name");
-                String dname = rs.getString("d.Name");
-                String attendanceRate = rs.getString("attendanceRate");
-                String attendDays = rs.getString("attendDays");
-                String absenceDays = rs.getString("absenceDays");
-                String vacationDays = rs.getString("vacationDays");
-
-                Map<String, String> employee = new LinkedHashMap<>();
-                employee.put("직원 ID", empPk);
-                employee.put("부서", dname);
-                employee.put("이름", name);
-                employee.put("출근율",attendanceRate+"%");
-                employee.put("출근", attendDays);
-                employee.put("결근", absenceDays);
-                employee.put("휴가", vacationDays);
-                employeeList.add(employee);
+             PreparedStatement pstmt = conn.prepareStatement(sql)) {
+            pstmt.setString(1, "%" + yearMonth + "%");
+            try (ResultSet rs = pstmt.executeQuery()) {
+                while (rs.next()) {
+                    Map<String, String> employeeData = new LinkedHashMap<>();
+                    employeeData.put("직원 ID", rs.getString("Emp_PK"));
+                    employeeData.put("이름", rs.getString("e.Name"));
+                    employeeData.put("부서", rs.getString("d.Name"));
+                    employeeData.put("출근율", rs.getString("attendanceRate"));
+                    employeeData.put("총 출근일", rs.getString("attendDays"));
+                    employeeData.put("총 결근일", rs.getString("absenceDays"));
+                    employeeData.put("총 휴가일", rs.getString("vacationDays"));
+                    employeeList.add(employeeData);
+                }
             }
-        } catch (SQLException se) {
-            se.printStackTrace();
+        } catch (SQLException e) {
+            e.printStackTrace();
         }
         return employeeList;
     }

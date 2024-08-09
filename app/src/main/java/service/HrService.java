@@ -1,20 +1,19 @@
-package controller;
+package service;
 
 import dao.AttendanceDao;
 import dto.TimeAttendance;
-import org.checkerframework.checker.units.qual.A;
 
 import java.util.*;
 
 public class HrService {
     private AttendanceDao attendanceDao;
-    HrCategory hrCategory;
-    Scanner sc;
+    private HrCategory hrCategory;
+    private Scanner sc;
 
-    public HrService(AttendanceDao attendanceDao) {
+    public HrService() {
         hrCategory = new HrCategory();
         sc = new Scanner(System.in);
-        this.attendanceDao = attendanceDao;
+        this.attendanceDao = new AttendanceDao();
     }
 
 
@@ -54,7 +53,9 @@ public class HrService {
     public String displayYearMonth(String title, List<String> categoryList, String exitOption) {
         StringBuilder stringBuilder = new StringBuilder("\n==== " + title + " ====\n");
         for (int i = 0; i < categoryList.size(); i++) {
-            stringBuilder.append((i + 1)).append(". ").append(categoryList.get(i)).append("\n");
+            if (categoryList.get(i).equals("08월") || categoryList.get(i).equals("2024")) {
+                stringBuilder.append((i + 1)).append(". ").append(categoryList.get(i)).append(" *\n");
+            } else stringBuilder.append((i + 1)).append(". ").append(categoryList.get(i)).append("\n");
         }
         stringBuilder.append("0. ").append(exitOption).append("\n").append("선택하세요 : ");
         System.out.print(stringBuilder);
@@ -130,11 +131,16 @@ public class HrService {
         String yearMonth = "";
         yearMonth += displayYear()+"-";
         yearMonth += displayMonth();
-
-        System.out.println(yearMonth.substring(0, yearMonth.length() - 1));
-
+        yearMonth = yearMonth.substring(0, yearMonth.length() - 1);
 
         List<Map<String, String>> employeeList = attendanceDao.monthlyAttendanceRateEmpList(yearMonth);
+        if (employeeList.size() == 0) {
+            System.out.println(yearMonth + "의 근태 기록이 없습니다!");
+            System.out.print("\n이전으로 돌아가려면 아무 숫자 입력 : ");
+            sc.nextInt();
+            return;
+        }
+
         Map<String, List<Map<String, String>>> departmentMap = new LinkedHashMap<>();
 
         // 직원 목록을 부서별로 그룹화

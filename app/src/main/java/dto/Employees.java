@@ -1,6 +1,5 @@
 package dto;
 
-// 롬복 어케 설치하는지 모르겠어용
 public class Employees {
     private String id;
     private String Name;
