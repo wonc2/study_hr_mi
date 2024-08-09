@@ -4,6 +4,10 @@ import connect.JDBCConnectionPool;
 import dto.TimeAttendance;
 
 import java.sql.*;
+import java.util.ArrayList;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
 
 public class AttendanceDao extends JDBCConnectionPool {
     // 근태 수정
@@ -83,4 +87,48 @@ public class AttendanceDao extends JDBCConnectionPool {
             se.printStackTrace();
         }
     }
+
+    // 부서별 직원 출근율 리스트로 조회
+    public List<Map<String, String>> monthlyAttendanceRateEmpList() {
+        List<Map<String, String>> employeeList = new ArrayList<>();
+        String sql = "SELECT e.Emp_PK, e.Name, d.Name, " +
+                "Round((COUNT(CASE WHEN t.Status = '출근' THEN 1 END)/24)*100, 1) AS 'attendanceRate', " +
+                "COUNT(CASE WHEN t.Status = '출근' THEN 1 END) AS 'attendDays', " +
+                "COUNT(CASE WHEN t.Status = '결근' THEN 1 END) AS 'absenceDays', " +
+                "COUNT(CASE WHEN t.Status = '휴가' THEN 1 END) AS 'vacationDays' " +
+                "FROM Employees e " +
+                "JOIN Department d ON e.dep_FK = d.dep_PK " +
+                "JOIN TimeAttendance t ON e.Emp_PK = t.Emp_FK " +
+                "GROUP BY e.Emp_PK, e.Name, d.Name";
+
+        try (Connection conn = getConnection();
+             Statement stmt = conn.createStatement();
+             ResultSet rs = stmt.executeQuery(sql)) {
+
+
+            while (rs.next()){
+                String empPk = rs.getString("Emp_PK");
+                String name = rs.getString("e.Name");
+                String dname = rs.getString("d.Name");
+                String attendanceRate = rs.getString("attendanceRate");
+                String attendDays = rs.getString("attendDays");
+                String absenceDays = rs.getString("absenceDays");
+                String vacationDays = rs.getString("vacationDays");
+
+                Map<String, String> employee = new LinkedHashMap<>();
+                employee.put("직원 ID", empPk);
+                employee.put("부서", dname);
+                employee.put("이름", name);
+                employee.put("출근율",attendanceRate+"%");
+                employee.put("출근", attendDays);
+                employee.put("결근", absenceDays);
+                employee.put("휴가", vacationDays);
+                employeeList.add(employee);
+            }
+        } catch (SQLException se) {
+            se.printStackTrace();
+        }
+        return employeeList;
+    }
+
 }

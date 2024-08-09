@@ -4,8 +4,7 @@ import dao.AttendanceDao;
 import dto.TimeAttendance;
 import org.checkerframework.checker.units.qual.A;
 
-import java.util.List;
-import java.util.Scanner;
+import java.util.*;
 
 public class HrService {
     private AttendanceDao attendanceDao;
@@ -64,11 +63,13 @@ public class HrService {
 
 
     public void displayAttendanceUpdate() {
-        sc.nextLine(); // 에러 때문에 추가했습니다
+        sc.nextLine(); // 입력 안받고 넘어가지는? 에러 때문에 추가했습니다
+
         // 직원 ID 입력 ->
         // 기존 날짜 출력 -> 수정할 날짜 입력
         // 기존 근무 상태 출력 -> 수정할 근무 상태 입력
         // 직원 ID 입력 ->
+
         System.out.println("\n==== 근태 수정 ====\n");
         attendanceDao.readEmployees();
         System.out.print("직원 ID 입력하세여 : ");
@@ -98,14 +99,40 @@ public class HrService {
         // true -> DB 에서 해당 근태 삭제
     }
 
-    public int displayAttendanceDepartmentMonthly() {
-        System.out.println("\n==== 근태 관리 ====\n");
-        // 리스트로 쫙
-        // 직원 아이디 이름:
-        // 출근율 = 24 - ~
-        // 출근일 = 24-휴가 -결근, 결근일, 휴가
+    public void displayAttendanceDepartmentMonthly() {
+        System.out.println("\n==== 부서별 월별 근태 현황 ====\n");
 
-        System.out.print("선택하세요 : ");
-        return sc.nextInt();
+        List<Map<String, String>> employeeList = attendanceDao.monthlyAttendanceRateEmpList();
+        Map<String, List<Map<String, String>>> departmentMap = new LinkedHashMap<>();
+
+        // 직원 목록을 부서별로 그룹화
+        for (Map<String, String> employee : employeeList) {
+            String department = employee.get("부서");
+
+            // 부서가 departmentMap에 없으면 새로운 리스트를 생성
+            if (!departmentMap.containsKey(department)) {
+                departmentMap.put(department, new ArrayList<>());
+            }
+
+            // 현재 부서의 직원 리스트에 직원 정보를 추가
+            departmentMap.get(department).add(employee);
+        }
+
+        // 부서별로 출력
+        for (Map.Entry<String, List<Map<String, String>>> entry : departmentMap.entrySet()) {
+            String department = entry.getKey();
+            List<Map<String, String>> employees = entry.getValue();
+
+            System.out.println("부서: " + department);
+            System.out.print("2024년 8월 근태 현황:\n");
+
+            for (Map<String, String> employee : employees) {
+                System.out.println(employee);
+            }
+            System.out.println(); // 한줄띄우기
+        }
+
+        System.out.print("\n이전으로 돌아가려면 아무 문자 입력 : ");
+        sc.nextInt();
     }
 }
