@@ -6,5 +6,4 @@ public class Main {
         HrService hrService = new HrService();
         hrService.runHrService();
     }
-    // hi
 }

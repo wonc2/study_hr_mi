@@ -10,7 +10,7 @@ public class HrCategory {
     }
 
     public List<String> getAttendanceCategory() {
-        return List.of("근태 입력 (option)", "근태 수정 *", "근태 삭제 *",
+        return List.of("근태 입력 *", "근태 수정 *", "근태 삭제 *",
                 "직원별 월별 근태 현황 보기 (option)", "부서별 월별 근태 현황 보기 *");
     }
 

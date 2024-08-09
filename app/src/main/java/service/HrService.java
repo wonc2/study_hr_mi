@@ -26,7 +26,9 @@ public class HrService {
                 while (true) {
                     choice = displayAttendance();
                     if (choice == 0) break;
-                    else if (choice == 2) {
+                    else if (choice == 1) {
+                        displayAttendanceInsert();
+                    } else if (choice == 2) {
                         displayAttendanceUpdate();
                     } else if (choice == 3) {
                         displayAttendanceDelete();
@@ -80,6 +82,25 @@ public class HrService {
         return displayYearMonth("월 선택", hrCategory.getMonthCategory(), "메인 메뉴로 돌아가기 *");
     }
 
+    public void displayAttendanceInsert() {
+        sc.nextLine();
+        System.out.println("\n==== 근태 입력 ====\n");
+        attendanceDao.readEmployees();
+        System.out.print("직원 ID 입력하세여 : ");
+        String empPk = sc.nextLine();
+        if (empPk.equals("0")) return;
+        System.out.print("날짜를 입력하세요 (ex: 2024-08-05) : ");
+        String workday = sc.nextLine();
+        if (workday.equals("0")) return;
+        System.out.print("근무 상태를 입력하세요 (출근, 퇴근, 결근, 휴가) : ");
+        String status = sc.nextLine();
+        if (status.equals("0")) return;
+
+        TimeAttendance attendance = new TimeAttendance("", workday,status);
+        attendanceDao.insertAttendance(attendance, empPk);
+        System.out.println("근태 입력 완료");
+    }
+
     public void displayAttendanceUpdate() {
         sc.nextLine(); // 입력 안받고 넘어가지는? 에러 때문에 추가했습니다
 
@@ -129,7 +150,7 @@ public class HrService {
         System.out.println("\n==== 부서별 월별 근태 현황 ====\n");
 
         String yearMonth = "";
-        yearMonth += displayYear()+"-";
+        yearMonth += displayYear() + "-";
         yearMonth += displayMonth();
         yearMonth = yearMonth.substring(0, yearMonth.length() - 1);
 

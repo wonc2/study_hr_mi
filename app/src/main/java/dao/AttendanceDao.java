@@ -119,4 +119,59 @@ public class AttendanceDao extends JDBCConnectionPool {
         return employeeList;
     }
 
+    public String getTaPk() {
+        String taPk = "";
+        String sql = "SELECT TA_PK FROM TimeAttendance ORDER BY length(TA_PK) desc ,TA_PK desc limit 1 ";
+        try (Connection conn = getConnection();
+             Statement stmt = conn.createStatement();
+             ResultSet rs = stmt.executeQuery(sql)) {
+            while (rs.next()) {
+                taPk = rs.getString("TA_PK");
+                String[] empPkSplit = taPk.split("_");
+                taPk = empPkSplit[0] + "_" + (Integer.parseInt(empPkSplit[1]) + 1);
+            }
+        } catch (SQLException se) {
+            se.printStackTrace();
+        }
+        return taPk;
+    }
+
+    // 근태 입력 작동 안함 참조키 ? 에러
+    public void insertAttendance(TimeAttendance attendance, String empPk) {
+        String sql = "INSERT INTO TimeAttendance (TA_PK, Emp_FK, Dep_FK, Workday, Status) VALUES (?, ?, ?, ?, ?) ";
+        try (Connection conn = getConnection();
+             PreparedStatement pstmt = conn.prepareStatement(sql)) {
+            String taPk = getTaPk();
+            String depFk = getDepFk(empPk);
+            String workday = attendance.getWorkday();
+            String status = attendance.getStatus();
+
+            pstmt.setString(1, taPk);
+            pstmt.setString(2, empPk);
+            pstmt.setString(3, depFk);
+            pstmt.setString(4, workday);
+            pstmt.setString(5, status);
+            pstmt.executeUpdate();
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+    }
+
+    // 직원 정보 조회
+    public String getDepFk(String emppk) {
+        String name = "";
+        String sql = "SELECT Dep_FK from Employees where Emp_PK = ?";
+        try (Connection conn = getConnection();
+             PreparedStatement pstmt = conn.prepareStatement(sql)) {
+            pstmt.setString(1, emppk);
+            try (ResultSet rs = pstmt.executeQuery()) {
+                while (rs.next()) {
+                    name = rs.getString("Dep_FK");
+                }
+            }
+        } catch (SQLException se) {
+            se.printStackTrace();
+        }
+        return name;
+    }
 }
