@@ -92,8 +92,8 @@ public class AttendanceDao extends JDBCConnectionPool {
                 "COUNT(CASE WHEN t.Status = '출근' THEN 1 END) AS 'attendDays', " +
                 "COUNT(CASE WHEN t.Status = '결근' THEN 1 END) AS 'absenceDays', " +
                 "COUNT(CASE WHEN t.Status = '휴가' THEN 1 END) AS 'vacationDays' " +
-                "FROM Employees e " +
-                "JOIN (select * from TimeAttendance where workday like ?) t ON e.Emp_PK = t.Emp_FK " +
+                "FROM (select * from TimeAttendance where workday like ?) t " +
+                "JOIN Employees e ON e.Emp_PK = t.Emp_FK " +
                 "JOIN Department d ON e.dep_FK = d.dep_PK " +
                 "GROUP BY e.Emp_PK, e.Name, d.Name";
 
