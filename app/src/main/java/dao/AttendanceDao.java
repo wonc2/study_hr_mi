@@ -54,13 +54,13 @@ public class AttendanceDao extends JDBCConnectionPool {
     public void readEmployeeAttendance(String id) {
         String sql = "SELECT * FROM TimeAttendance t " +
                 "INNER JOIN Employees e ON t.Emp_FK = e.Emp_PK " +
-                "WHERE t.Emp_FK = ? " +  // 직원 번호를 ?로 바꿈
-                "ORDER BY t.Workday, t.Status ASC";  // t.Workday와 t.Status를 사용
+                "WHERE t.Emp_FK = ? " +
+                "ORDER BY t.Workday, t.Status ASC";
 
         try (Connection conn = getConnection();
-             PreparedStatement pstmt = conn.prepareStatement(sql)) {  // PreparedStatement 사용
+             PreparedStatement pstmt = conn.prepareStatement(sql)) {
 
-            pstmt.setString(1, id);  // 첫 번째 ?에 id 값 설정
+            pstmt.setString(1, id);
 
             try (ResultSet rs = pstmt.executeQuery()) {
 
@@ -70,11 +70,9 @@ public class AttendanceDao extends JDBCConnectionPool {
                     return;
                 }
 
-                // 첫 번째 레코드에서 이름 가져오기
                 String name = rs.getString("Name");
                 System.out.println("\n" + name + "의 2024년 08월 근태 기록");
 
-                // 첫 번째 레코드의 나머지 데이터 처리
                 do {
                     String taPk = rs.getString("TA_PK");
                     String workday = rs.getString("Workday");
@@ -89,7 +87,7 @@ public class AttendanceDao extends JDBCConnectionPool {
     }
 
     // 부서별 직원 출근율 리스트로 조회
-    public List<Map<String, String>> monthlyAttendanceRateEmpList() {
+    public List<Map<String, String>> monthlyAttendanceRateEmpList(String yearMonth) {
         List<Map<String, String>> employeeList = new ArrayList<>();
         String sql = "SELECT e.Emp_PK, e.Name, d.Name, " +
                 "Round((COUNT(CASE WHEN t.Status = '출근' THEN 1 END)/24)*100, 1) AS 'attendanceRate', " +
@@ -98,7 +96,7 @@ public class AttendanceDao extends JDBCConnectionPool {
                 "COUNT(CASE WHEN t.Status = '휴가' THEN 1 END) AS 'vacationDays' " +
                 "FROM Employees e " +
                 "JOIN Department d ON e.dep_FK = d.dep_PK " +
-                "JOIN TimeAttendance t ON e.Emp_PK = t.Emp_FK " +
+                "JOIN (select * from TimeAttendance where workday like '%2024-08%') t ON e.Emp_PK = t.Emp_FK " +
                 "GROUP BY e.Emp_PK, e.Name, d.Name";
 
         try (Connection conn = getConnection();

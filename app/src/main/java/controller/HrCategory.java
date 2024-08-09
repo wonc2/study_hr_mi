@@ -14,4 +14,13 @@ public class HrCategory {
         return List.of("근태 입력 (option)", "근태 수정 *", "근태 삭제 *",
                 "직원별 월별 근태 현황 보기 (option)", "부서별 월별 근태 현황 보기 *");
     }
+
+    public List<String> getYearCategory() {
+        return List.of("2021", "2022", "2023", "2024");
+    }
+
+    public List<String> getMonthCategory() {
+        return List.of("01월", "02월", "03월", "04월", "05월", "06월", "07월", "08월",
+                "09월", "10월", "11월", "12월");
+    }
 }

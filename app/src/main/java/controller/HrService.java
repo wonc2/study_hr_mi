@@ -18,7 +18,6 @@ public class HrService {
     }
 
 
-
     public void runHrService() {
 
         while (true) {
@@ -51,6 +50,17 @@ public class HrService {
         return sc.nextInt();
     }
 
+    // Year 및 Month 리턴
+    public String displayYearMonth(String title, List<String> categoryList, String exitOption) {
+        StringBuilder stringBuilder = new StringBuilder("\n==== " + title + " ====\n");
+        for (int i = 0; i < categoryList.size(); i++) {
+            stringBuilder.append((i + 1)).append(". ").append(categoryList.get(i)).append("\n");
+        }
+        stringBuilder.append("0. ").append(exitOption).append("\n").append("선택하세요 : ");
+        System.out.print(stringBuilder);
+        return categoryList.get(sc.nextInt() - 1);
+    }
+
     // 메인 카테고리 출력 메서드
     public int displayMain() {
         return displayMenu("인적 자원 관리 시스템", hrCategory.getMainCategory(), "종료");
@@ -61,6 +71,13 @@ public class HrService {
         return displayMenu("근태 관리", hrCategory.getAttendanceCategory(), "메인 메뉴로 돌아가기 *");
     }
 
+    public String displayYear() {
+        return displayYearMonth("연도 선택", hrCategory.getYearCategory(), "메인 메뉴로 돌아가기 *");
+    }
+
+    public String displayMonth() {
+        return displayYearMonth("월 선택", hrCategory.getMonthCategory(), "메인 메뉴로 돌아가기 *");
+    }
 
     public void displayAttendanceUpdate() {
         sc.nextLine(); // 입력 안받고 넘어가지는? 에러 때문에 추가했습니다
@@ -102,7 +119,14 @@ public class HrService {
     public void displayAttendanceDepartmentMonthly() {
         System.out.println("\n==== 부서별 월별 근태 현황 ====\n");
 
-        List<Map<String, String>> employeeList = attendanceDao.monthlyAttendanceRateEmpList();
+        String yearMonth = "";
+        yearMonth += displayYear()+"-";
+        yearMonth += displayMonth();
+
+        System.out.println(yearMonth.substring(0, yearMonth.length() - 1));
+
+
+        List<Map<String, String>> employeeList = attendanceDao.monthlyAttendanceRateEmpList(yearMonth);
         Map<String, List<Map<String, String>>> departmentMap = new LinkedHashMap<>();
 
         // 직원 목록을 부서별로 그룹화
@@ -132,7 +156,7 @@ public class HrService {
             System.out.println(); // 한줄띄우기
         }
 
-        System.out.print("\n이전으로 돌아가려면 아무 문자 입력 : ");
+        System.out.print("\n이전으로 돌아가려면 아무 숫자 입력 : ");
         sc.nextInt();
     }
 }
