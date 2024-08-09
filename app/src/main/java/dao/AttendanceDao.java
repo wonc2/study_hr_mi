@@ -8,12 +8,14 @@ import java.sql.*;
 public class AttendanceDao extends JDBCConnectionPool {
     // 근태 수정
     public void updateAttendance(TimeAttendance attendance) {
-        String sql = "UPDATE TimeAttendance SET Status = ? WHERE Workday = ? and Emp_FK = ?";
+        String sql = "UPDATE TimeAttendance SET Status=? WHERE TA_PK=?";
+        System.out.println(attendance.getStatus());
+        System.out.println(attendance.getWorkday());
+        System.out.println(attendance.getPk());
         try (Connection conn = getConnection();
              PreparedStatement pstmt = conn.prepareStatement(sql)) {
             pstmt.setString(1, attendance.getStatus());
-            pstmt.setString(2, attendance.getWorkday());
-            pstmt.setString(3, attendance.getEmp_FK());
+            pstmt.setString(2, attendance.getPk());
             pstmt.executeUpdate();
         } catch (SQLException e) {
             e.printStackTrace();

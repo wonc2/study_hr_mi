@@ -72,17 +72,17 @@ public class HrService {
         System.out.println("\n==== 근태 수정 ====\n");
         attendanceDao.readEmployees();
         System.out.print("직원 ID 입력하세여 : ");
-        String id = sc.nextLine();
-        if (id.equals("0")) return;
-        attendanceDao.readEmployeeAttendance(id);
+        String empPk = sc.nextLine();
+        if (empPk.equals("0")) return;
+        attendanceDao.readEmployeeAttendance(empPk);
         System.out.print(" - 수정할 날짜의 근태 코드를 입력하세요: ");
-        String workday = sc.nextLine();
-        if (workday.equals("0")) return;
+        String ta_pk = sc.nextLine();
+        if (ta_pk.equals("0")) return;
         System.out.print("수정할 근무 상태를 입력하세요: ");
         String status = sc.nextLine();
         if (status.equals("0")) return;
 
-        TimeAttendance attendance = new TimeAttendance(id, workday, status);
+        TimeAttendance attendance = new TimeAttendance(ta_pk, status);
         attendanceDao.updateAttendance(attendance);
         System.out.println("업데이트 완료");
     }
