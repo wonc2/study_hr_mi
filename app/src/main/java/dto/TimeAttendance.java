@@ -1,5 +1,7 @@
 package dto;
 
+import java.sql.Time;
+
 public class TimeAttendance {
     private String tapk;
     private String Workday;
@@ -13,6 +15,10 @@ public class TimeAttendance {
     public TimeAttendance(String tapk,  String status) {
         this.tapk = tapk;
         this.Status = status;
+    }
+
+    public TimeAttendance(String tapk) {
+        this.tapk = tapk;
     }
 
     public String getPk() {return tapk;}

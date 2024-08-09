@@ -106,14 +106,22 @@ public class HrService {
     }
 
     public void displayAttendanceDelete() {
-        System.out.println("\n==== 근태 삭제 ====\n");
+        sc.nextLine();
         // 직원 ID 입력 ->
         // 기존 날짜 출력 -> 삭제할 날짜 입력
-        // 삭제 확인? 출력 -> 삭제 확인 yes : no 입력
-        System.out.println("(삭제하려면 yes 아니면 no 입력)\n삭제 확인 : ");
+        System.out.println("\n==== 근태 삭제 ====\n");
+        attendanceDao.readEmployees();
+        System.out.print("직원 ID 입력하세여 : ");
+        String empPk = sc.nextLine();
+        if (empPk.equals("0")) return;
+        attendanceDao.readEmployeeAttendance(empPk);
+        System.out.print(" - 삭제할 날짜의 근태 코드를 입력하세요: ");
+        String ta_pk = sc.nextLine();
+        if (ta_pk.equals("0")) return;
 
-        // return sc.nextLine().equals("yes") ? true : false;
-        // true -> DB 에서 해당 근태 삭제
+        TimeAttendance attendance = new TimeAttendance(ta_pk);
+        attendanceDao.deleteAttenddance(attendance);
+        System.out.println("삭제 완료");
     }
 
     public void displayAttendanceDepartmentMonthly() {

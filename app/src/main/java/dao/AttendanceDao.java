@@ -27,7 +27,18 @@ public class AttendanceDao extends JDBCConnectionPool {
     }
 
     // 근태 삭제
-    public void deleteAttenddance(String workday) {}
+    public void deleteAttenddance(TimeAttendance attendance) {
+        String sql = "DELETE FROM TimeAttendance WHERE TA_PK = ?";
+        System.out.println(attendance.getWorkday());
+        System.out.println(attendance.getPk());
+        try (Connection conn = getConnection();
+             PreparedStatement pstmt = conn.prepareStatement(sql)) {
+            pstmt.setString(1, attendance.getPk());
+            pstmt.executeUpdate();
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+    }
 
     // 직원 명단 출력
     public void readEmployees() {
